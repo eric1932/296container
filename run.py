@@ -19,7 +19,8 @@ def run(uuid: str = None, load: bool = False) -> None:
 
     if not load:
         cp(base_image, img_path)
-    os.mkdir(mount_path)
+    if not os.path.exists(mount_path):
+        os.mkdir(mount_path)
     mount('-o', 'rw', img_path, mount_path)
 
     cg = Cgroup(cgroup_name)
@@ -28,13 +29,17 @@ def run(uuid: str = None, load: bool = False) -> None:
 
     print("uuid:", uuid)
 
+    # env
+    my_env = os.environ.copy()
+    my_env["PATH"] = "/bin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
+
     def hook():
         cg.add(os.getpid())
         os.chroot('.')
     # proc = subprocess.Popen('echo hello world subprocess!', shell=True)
     # proc = subprocess.Popen(['ls', '-lah'], shell=False)
     # proc = subprocess.Popen(['free', '-h'], preexec_fn=hook, shell=False)
-    proc = subprocess.Popen('/bin/bash', preexec_fn=hook, cwd=mount_path)
+    proc = subprocess.Popen('/bin/bash', preexec_fn=hook, cwd=mount_path, env=my_env)
     proc.wait()
 
     # cleanup
@@ -44,4 +49,4 @@ def run(uuid: str = None, load: bool = False) -> None:
 
 if __name__ == '__main__':
     # run()
-    run('8e07cd5e-635d-11ea-9fe3-2df319929fc7', True)
+    run('8e07cd5e-635d-11ea-9fe3-2df319929fc7', False)
