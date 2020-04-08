@@ -1,4 +1,7 @@
+#!/usr/bin/env python3
+
 import os
+import readline
 
 from run import run
 
@@ -21,35 +24,47 @@ def find_uuid(short):
         return None
 
 
+def parser_run(args):
+    if len(args) == 1:
+        # print usage
+        print("\"run\" requires at least 1 argument.")
+        print("See \"run --help\"")
+        print()
+        print("Usage: run [UUID] IMAGE")
+        print()
+        print("Run a command in a container. If UUID is specified, do not create a new one.")
+    elif len(args) == 2:
+        run()
+    elif len(args) == 3:
+        uuid = find_uuid(args[1])
+        if uuid:
+            run(uuid, True)
+        else:
+            print("No matching uuid found!")
+
+
 if __name__ == '__main__':
+    # initialize folders
+    if not os.path.exists('./container'):
+        os.mkdir('./container')
+
     while True:
         command = input("$ ")
         command = command.split()
-        if command[0] == "exit":
+        if not len(command):
+            continue
+        elif command[0] == "exit":
+            print("See you.")
             break
         elif command[0] == "help":
-            print("commands: help exit run ls")
+            print("commands: help exit run ps")
         elif command[0] == "run":
-            if len(command) == 1:
-                run()
-            elif len(command) == 2:
-                uuid = find_uuid(command[1])
-                if uuid:
-                    run(uuid)
-                else:
-                    print("No matching uuid found!")
-            elif len(command) == 3:
-                uuid = find_uuid(command[1])
-                if not uuid:
-                    print("No matching uuid found!")
-                elif command[2] == "--continue":
-                    run(uuid, True)
-                else:
-                    run(uuid, False)
-        elif command[0] == "demo":
-            run('8e07cd5e-635d-11ea-9fe3-2df319929fc7', False)
-        elif command[0] == "ls":
+            parser_run(command)
+        elif command[0] == "ps":
+            print("UUID\t\tIMAGE\tCOMMAND\tCREATED\tSTATUS")
             for x in os.listdir("./container"):
-                print(x[:-4])
+                if os.path.isfile(os.path.join('container', x)):
+                    print(x[:-4][:8])
         else:
+            print("Command '" + command[0] + "' not found.")
             continue

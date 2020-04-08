@@ -7,14 +7,12 @@ from sh import mount, cp, umount
 
 
 def run(uuid: str = None, load: bool = False) -> None:
-    if not os.path.exists('./container'):
-        os.mkdir('./container')
     cgroup_name = 'test'
     base_image = './base_images/ubuntu.img'
     if not uuid:
         uuid = uuid1()
     container_name = str(uuid) + '.img'
-    img_path = './container/' + container_name
+    img_path = os.path.join('container', container_name)
     mount_path = './container/' + str(uuid)
 
     if not load:
@@ -31,7 +29,14 @@ def run(uuid: str = None, load: bool = False) -> None:
 
     # env
     my_env = os.environ.copy()
-    my_env["PATH"] = "/bin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
+    path = set(my_env["PATH"].split(":"))
+    path.add("/bin")
+    path.add("/sbin")
+    path.add("/usr/bin")
+    path.add("/usr/sbin")
+    path.add("/usr/local/bin")
+    path.add("/usr/local/sbin")
+    my_env["PATH"] = ":".join(path)
 
     def hook():
         cg.add(os.getpid())
@@ -45,8 +50,3 @@ def run(uuid: str = None, load: bool = False) -> None:
     # cleanup
     umount(mount_path)
     os.rmdir(mount_path)
-
-
-if __name__ == '__main__':
-    # run()
-    run('8e07cd5e-635d-11ea-9fe3-2df319929fc7', False)
