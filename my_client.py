@@ -14,6 +14,22 @@ def KeyboardInterruptHandler(signal, frame):
     exit(0)
 
 
+def recv_args(soc: socket.socket) -> {str: str}:
+    args = {}
+    while True:
+        body_length = soc.recv(4).decode()
+        if body_length == "next":
+            break
+        body_length = int(body_length)
+        k, v = soc.recv(body_length).decode().split("=")
+        try:  # try to convert to int
+            v = int(v)
+        except ValueError:
+            pass  # do nothing
+        args[k] = v
+    return args
+
+
 if __name__ == '__main__':
     if os.getuid() != 0:
         print("Error: must run as root")
@@ -50,18 +66,6 @@ if __name__ == '__main__':
         client_socket.close()
     else:
         # receive args
-        args = {}
-        while True:
-            # TODO wrap as function
-            body_length = client_socket.recv(4).decode()
-            if body_length == "next":
-                break
-            body_length = int(body_length)
-            k, v = client_socket.recv(body_length).decode().split("=")
-            try:
-                v = int(v)
-            except ValueError as e:
-                pass
-            args[k] = v
+        args = recv_args(client_socket)
         client_socket.close()
         utils.run(uuid=args.get("uuid", None), load=args.get("load", False))

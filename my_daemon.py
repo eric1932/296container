@@ -29,6 +29,11 @@ def send(soc: socket.socket, msg, newline=False):
     soc.send((str(msg) + ("\n" if newline else "")).encode())
 
 
+def send_arg(soc: socket.socket, key, value):
+    soc.send(("%04d" % (len(key) + 1 + len(value)) +
+              key + "=" + value).encode())
+
+
 def command_handler(soc: socket.socket, msg: str):
     print("command (" + msg + ") is handled by a thread")
     if msg == '\0' or msg.startswith("help"):
@@ -42,25 +47,25 @@ def command_handler(soc: socket.socket, msg: str):
                 send(soc, x[:-4][:8], newline=True)
     elif msg.startswith("run"):
         args = msg.split()
-        if len(args) == 1:
+        if len(args) == 1 or args[1] == "--help":
             send(soc, "i=0;")
             # print usage
-            send(soc, "\"run\" requires at least 1 argument.", newline=True)
-            send(soc, "See \"run --help\"", newline=True)
-            send(soc, "", newline=True)
-            send(soc, "Usage: run [UUID] IMAGE", newline=True)
-            send(soc, "", newline=True)
-            send(soc, "Run a command in a container. If UUID is specified, do not create a new one.", newline=True)
+            send(soc, "\"run\" requires at least 1 argument.\n"
+                      "See \"run --help\"\n"
+                      "\n"
+                      "Usage: run [UUID] IMAGE\n"
+                      "\n"
+                      "Run a command in a container. If UUID is specified, do not create a new one.\n")
         elif len(args) == 2:
             send(soc, "i=1;")
-            send(soc, "next")  # replace utils.run
+            send(soc, "next")  # end of passing args
         elif len(args) == 3:
             uuid = utils.find_uuid(args[1])
             if uuid:
                 send(soc, "i=1;")
-                send(soc, "%04d" % (5 + len(uuid)) + "uuid=" + uuid)
-                send(soc, "0006" + "load=1")
-                send(soc, "next")  # replace utils.run
+                send_arg(soc, "uuid", uuid)
+                send_arg(soc, "load", "1")
+                send(soc, "next")  # end of passing args
             else:
                 send(soc, "i=0;")
                 send(soc, "No matching uuid found!", newline=True)
