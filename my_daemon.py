@@ -25,49 +25,49 @@ def KeyboardInterruptHandler(signal, frame):
     exit(0)
 
 
-def send(soc: socket.socket, msg, delim='\n'):
-    soc.send((str(msg) + delim).encode())
+def send(soc: socket.socket, msg, newline=False):
+    soc.send((str(msg) + ("\n" if newline else "")).encode())
 
 
 def command_handler(soc: socket.socket, msg: str):
     print("command (" + msg + ") is handled by a thread")
     if msg == '\0' or msg.startswith("help"):
-        send(soc, "i=0;", delim='')
-        send(soc, "commands: help exit run ps")
+        send(soc, "i=0;")
+        send(soc, "commands: help exit run ps", newline=True)
     elif msg.startswith("ps"):
-        send(soc, "i=0;", delim='')
-        send(soc, "UUID\t\tIMAGE\tCOMMAND\tCREATED\tSTATUS")
+        send(soc, "i=0;")
+        send(soc, "UUID\t\tIMAGE\tCOMMAND\tCREATED\tSTATUS", newline=True)
         for x in os.listdir("./container"):
             if os.path.isfile(os.path.join('container', x)):
-                send(soc, x[:-4][:8])
+                send(soc, x[:-4][:8], newline=True)
     elif msg.startswith("run"):
         args = msg.split()
         if len(args) == 1:
-            send(soc, "i=0;", delim='')
+            send(soc, "i=0;")
             # print usage
-            send(soc, "\"run\" requires at least 1 argument.")
-            send(soc, "See \"run --help\"")
-            send(soc, "")
-            send(soc, "Usage: run [UUID] IMAGE")
-            send(soc, "")
-            send(soc, "Run a command in a container. If UUID is specified, do not create a new one.")
+            send(soc, "\"run\" requires at least 1 argument.", newline=True)
+            send(soc, "See \"run --help\"", newline=True)
+            send(soc, "", newline=True)
+            send(soc, "Usage: run [UUID] IMAGE", newline=True)
+            send(soc, "", newline=True)
+            send(soc, "Run a command in a container. If UUID is specified, do not create a new one.", newline=True)
         elif len(args) == 2:
-            send(soc, "i=1;", delim='')
-            send(soc, "next", delim='')  # replace utils.run
+            send(soc, "i=1;")
+            send(soc, "next")  # replace utils.run
         elif len(args) == 3:
             uuid = utils.find_uuid(args[1])
             if uuid:
-                send(soc, "i=1;", delim='')
-                send(soc, "%04d" % (5 + len(uuid)) + "uuid=" + uuid, delim='')
-                send(soc, "0006" + "load=1", delim='')
-                send(soc, "next", delim='')  # replace utils.run
+                send(soc, "i=1;")
+                send(soc, "%04d" % (5 + len(uuid)) + "uuid=" + uuid)
+                send(soc, "0006" + "load=1")
+                send(soc, "next")  # replace utils.run
             else:
-                send(soc, "i=0;", delim='')
-                send(soc, "No matching uuid found!")
+                send(soc, "i=0;")
+                send(soc, "No matching uuid found!", newline=True)
     else:
         # pass
-        send(soc, "i=0;", delim='')
-        send(soc, "pass")
+        send(soc, "i=0;")
+        send(soc, "pass", newline=True)
     soc.close()
     client_sockets.remove(soc)
 
