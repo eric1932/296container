@@ -1,6 +1,8 @@
+#!/usr/bin/env python3
 import signal
 import socket
 import sys
+import os
 
 import utils
 
@@ -13,6 +15,10 @@ def KeyboardInterruptHandler(signal, frame):
 
 
 if __name__ == '__main__':
+    if os.getuid() != 0:
+        print("Error: must run as root")
+        client_socket.close()
+        exit(1)
     port = 5555
     try:
         client_socket.connect(('127.0.0.1', port))
