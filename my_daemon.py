@@ -3,6 +3,8 @@ import signal
 import socket
 import threading
 
+import utils
+
 # import multiprocessing
 # import daemon
 # TODO daemon
@@ -29,17 +31,39 @@ def send(soc: socket.socket, msg, delim='\n'):
 
 def command_handler(soc: socket.socket, msg: str):
     print("command (" + msg + ") is handled by a thread")
-    if msg == '\0' or msg == "help":
+    if msg == '\0' or msg.startswith("help"):
         send(soc, "i=0;", delim='')
         send(soc, "commands: help exit run ps")
-    elif msg == "run":
-        send(soc, "i=1;", delim='')
-    elif msg == "ps":
+    elif msg.startswith("ps"):
         send(soc, "i=0;", delim='')
         send(soc, "UUID\t\tIMAGE\tCOMMAND\tCREATED\tSTATUS")
         for x in os.listdir("./container"):
             if os.path.isfile(os.path.join('container', x)):
                 send(soc, x[:-4][:8])
+    elif msg.startswith("run"):
+        args = msg.split()
+        if len(args) == 1:
+            send(soc, "i=0;", delim='')
+            # print usage
+            send(soc, "\"run\" requires at least 1 argument.")
+            send(soc, "See \"run --help\"")
+            send(soc, "")
+            send(soc, "Usage: run [UUID] IMAGE")
+            send(soc, "")
+            send(soc, "Run a command in a container. If UUID is specified, do not create a new one.")
+        elif len(args) == 2:
+            send(soc, "i=1;", delim='')
+            send(soc, "next", delim='')  # replace utils.run
+        elif len(args) == 3:
+            uuid = utils.find_uuid(args[1])
+            if uuid:
+                send(soc, "i=1;", delim='')
+                send(soc, "%04d" % (5 + len(uuid)) + "uuid=" + uuid, delim='')
+                send(soc, "0006" + "load=1", delim='')
+                send(soc, "next", delim='')  # replace utils.run
+            else:
+                send(soc, "i=0;", delim='')
+                send(soc, "No matching uuid found!")
     else:
         # pass
         send(soc, "i=0;", delim='')
@@ -63,7 +87,6 @@ def main():
         client_sockets.append(client_socket)
         print('connection from', addr)
         msg = client_socket.recv(1024).decode('utf-8')
-        print('close client socket')
 
         # single thread
         # command_handler(msg)
