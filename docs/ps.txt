@@ -1,0 +1,7 @@
+Usage: ps [OPTIONS]
+
+List containers
+
+Options:
+  -a, --all	Show all containers
+  -h, --help	Print this help
