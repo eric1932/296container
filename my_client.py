@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
+import os
 import signal
 import socket
 import sys
-import os
 
-import utils
+import run
 
 client_socket = socket.socket()
 
@@ -56,7 +56,7 @@ if __name__ == '__main__':
     # send command
     client_socket.send(command.encode('utf-8'))
     # receive output & enter interactive mode
-    interaction = int(client_socket.recv(4).decode()[-2])
+    interaction = int(client_socket.recv(1).decode())
     if not interaction:
         while True:
             buf = client_socket.recv(1024).decode()
@@ -68,4 +68,4 @@ if __name__ == '__main__':
         # receive args
         args = recv_args(client_socket)
         client_socket.close()
-        utils.run(uuid=args.get("uuid", None), load=args.get("load", False))
+        run.run(uuid=args.get("uuid", None), load=args.get("load", False))

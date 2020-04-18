@@ -5,6 +5,7 @@ from uuid import uuid1
 
 from cgroups import Cgroup
 from sh import mount, umount
+from config import create_record
 
 
 def run(uuid: str = None, load: bool = False) -> None:
@@ -26,7 +27,10 @@ def run(uuid: str = None, load: bool = False) -> None:
     cg.set_cpu_limit(50)
     cg.set_memory_limit(512)
 
-    print("uuid:", uuid)
+    print("uuid:", uuid)  # TODO remove
+
+    # create record
+    create_record(uuid, "ubuntu", "/bin/bash")  # TODO replace str
 
     # env
     my_env = os.environ.copy()

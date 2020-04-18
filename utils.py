@@ -1,6 +1,5 @@
 import os
-
-from run import run
+import socket
 
 
 def find_uuid(short):
@@ -21,6 +20,7 @@ def find_uuid(short):
         return None
 
 
+# TODO remove
 if __name__ == '__main__':
     # initialize folders
     if not os.path.exists('./container'):
@@ -46,3 +46,24 @@ if __name__ == '__main__':
         else:
             print("Command '" + command[0] + "' not found.")
             continue
+
+
+def send(soc: socket.socket, msg, newline=False):
+    soc.send((str(msg) + ("\n" if newline else "")).encode())
+
+
+def send_arg(soc: socket.socket, key, value):
+    soc.send(("%04d" % (len(key) + 1 + len(value)) +
+              key + "=" + value).encode())
+
+
+def set_interaction(soc: socket.socket, flag: bool):
+    soc.send(str(int(flag)).encode())
+
+
+def get_running_containers():
+    return [uuid for uuid in os.listdir("./container") if os.path.isdir(os.path.join("./container", uuid))]
+
+
+def get_all_containers():
+    return [uuid_img[:-4] for uuid_img in os.listdir("./container") if uuid_img[-4:] == ".img"]
