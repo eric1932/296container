@@ -1,1 +1,1 @@
-commands: help exit run.txt ps
+commands: help exit run ps

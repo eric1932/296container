@@ -48,11 +48,10 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         command = " ".join(sys.argv[1:])
     else:
-        sys.stderr.write("\033[33m" + "warning: no argument is given; read from input\033[39m\n")
-        command = input("container$ ")
-    if command == "":  # replace empty string
+    #     sys.stderr.write("\033[33m" + "warning: no argument is given; read from input\033[39m\n")
+    #     command = input("container$ ")
+    # if command == "":  # replace empty string
         command = '\0'
-    # command = "help"
     # send command
     client_socket.send(command.encode('utf-8'))
     # receive output & enter interactive mode
