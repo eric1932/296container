@@ -1,16 +1,21 @@
 import os
 import shutil
 import subprocess
+import sys
 from uuid import uuid1
 
 from cgroups import Cgroup
 from sh import mount, umount
+
 from config import create_record
 
+# TODO tmp
+processes = {}  # define {uuid: (Popen, mount_path)}
 
-def run(uuid: str = None, load: bool = False) -> None:
+
+def run(detach: bool, image: str = 'ubuntu.img', uuid: str = None, load: bool = False, cmd=('/bin/uname', '-a')) -> None:
     cgroup_name = 'test'
-    base_image = './base_images/ubuntu.img'
+    base_image_path = os.path.join('./base_images/', image)  # TODO exist?
     if not uuid:
         uuid = uuid1()
     container_name = str(uuid) + '.img'
@@ -18,7 +23,7 @@ def run(uuid: str = None, load: bool = False) -> None:
     mount_path = './container/' + str(uuid)
 
     if not load:
-        shutil.copy(base_image, img_path)
+        shutil.copy(base_image_path, img_path)
     if not os.path.exists(mount_path):
         os.mkdir(mount_path)
     mount('-o', 'rw', img_path, mount_path)
@@ -30,7 +35,7 @@ def run(uuid: str = None, load: bool = False) -> None:
     print("uuid:", uuid)  # TODO remove
 
     # create record
-    create_record(uuid, "ubuntu", "/bin/bash")  # TODO replace str
+    create_record(uuid, "ubuntu", cmd)  # TODO replace ubuntu
 
     # env
     my_env = os.environ.copy()
@@ -50,8 +55,9 @@ def run(uuid: str = None, load: bool = False) -> None:
     # proc = subprocess.Popen('echo hello world subprocess!', shell=True)
     # proc = subprocess.Popen(['ls', '-lah'], shell=False)
     # proc = subprocess.Popen(['free', '-h'], preexec_fn=hook, shell=False)
+    proc = subprocess.Popen(cmd, preexec_fn=hook, cwd=mount_path, env=my_env)
+    # TODO try catch
 
-    proc = subprocess.Popen('/bin/bash', preexec_fn=hook, cwd=mount_path, env=my_env)
     # stdout_r, stdout_w = os.pipe()
     # stdout_r = os.fdopen(stdout_r)
     # stdout_w = os.fdopen(stdout_w, 'w')
@@ -72,16 +78,24 @@ def run(uuid: str = None, load: bool = False) -> None:
     # buf = stdout_r.readline()
     # redirect_socket.send(buf.encode())
 
-    proc.wait()
+    if detach:
+        # TODO add to pool
+        processes[str(uuid)] = (proc, mount_path)
+    else:
+        proc.wait()
+        # cleanup
+        umount(mount_path)
+        os.rmdir(mount_path)
 
-    # cleanup
-    umount(mount_path)
-    os.rmdir(mount_path)
 
-
-if __name__ == '__main__':
-    if not os.path.exists('./container'):
-        os.mkdir('./container')
-    file = open("out", "r+")
-    run()
-    file.close()
+def terminate(uuid: str):
+    if uuid not in processes:
+        print("unexpected behavior", file=sys.stderr)
+        # TODO
+    else:
+        proc, mount_path = processes[uuid]
+        proc.terminate()
+        proc.wait()
+        # cleanup
+        umount(mount_path)
+        os.rmdir(mount_path)

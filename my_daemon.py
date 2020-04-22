@@ -3,6 +3,7 @@ import os
 import signal
 import socket
 import threading
+import run
 
 import commands
 from utils import send, set_interaction
@@ -34,7 +35,7 @@ def command_handler(soc: socket.socket, msg: str):
     # optlist, args = getopt.getopt(args, 'h', ['help'])
     # print(optlist, args)  # TODO
     if cmd == "help" or msg == '\0' or cmd == "-h" or cmd == "--help":
-        commands.main_help(soc)
+        commands.main_help(soc)  # TODO more intelligent
     elif cmd == "ps":
         commands.ps(soc, args)
     elif cmd == "run":
@@ -45,6 +46,14 @@ def command_handler(soc: socket.socket, msg: str):
         commands.rm(soc, args)
     elif cmd == "rmi":
         pass
+    elif cmd == "bgrun":
+        set_interaction(soc, False)
+        run.run(detach=True, cmd=('/usr/sbin/nginx', '-g', 'daemon off;'), image='nginx.img')  # TODO
+        send(soc, "detach mode", newline=True)
+    elif cmd == "term":
+        set_interaction(soc, False)
+        run.terminate(args[0])
+        send(soc, "should be terminated", newline=True)
     else:
         # pass
         set_interaction(soc, False)

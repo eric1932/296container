@@ -39,7 +39,7 @@ if __name__ == '__main__':
     try:
         client_socket.connect(('127.0.0.1', port))
     except socket.error:
-        print("connection is not available")
+        print("connection is not available\nthe server is probably down")
         client_socket.close()
         exit(1)
 
@@ -67,4 +67,4 @@ if __name__ == '__main__':
         # receive args
         args = recv_args(client_socket)
         client_socket.close()
-        run.run(uuid=args.get("uuid", None), load=args.get("load", False))
+        run.run(uuid=args.get("uuid", None), load=args.get("load", False), detach=False, cmd='/bin/bash')
