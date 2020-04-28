@@ -14,6 +14,7 @@ class Help(Command):
         set_interaction(self.soc, False)
         # with open("docs/help.txt") as f:
         #     send(self.soc, f.read(), newline=True)
+        send(self.soc, "client.py COMMAND [OPTIONS]", newline=True)
         send(self.soc, "commands: ", newline=False)
         for cmd in sorted(os.listdir("commands2")):
             if not cmd.endswith(".py") or cmd == "help.py":
