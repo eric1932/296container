@@ -1,12 +1,15 @@
-import getopt
 import os
 import signal
 import socket
 import threading
-import run
 
-import commands
-from utils import send, set_interaction
+import run
+from commands2.help import Help
+from commands2.ps import Ps
+from commands2.rm import Rm
+from commands2.run import Run
+from utils import send
+from utils import set_interaction
 
 # import multiprocessing
 # import daemon
@@ -35,20 +38,21 @@ def command_handler(soc: socket.socket, msg: str):
     # optlist, args = getopt.getopt(args, 'h', ['help'])
     # print(optlist, args)  # TODO
     if cmd == "help" or msg == '\0' or cmd == "-h" or cmd == "--help":
-        commands.main_help(soc)  # TODO more intelligent
+        # commands.main_help(soc)  # TODO more intelligent
+        Help(soc)
     elif cmd == "ps":
-        commands.ps(soc, args)
+        Ps(soc, args)
     elif cmd == "run":
-        commands.run(soc, args)
+        Run(soc, args)
     elif cmd == "start":
         pass
     elif cmd == "rm":
-        commands.rm(soc, args)
+        Rm(soc, args)
     elif cmd == "rmi":
         pass
     elif cmd == "bgrun":
         set_interaction(soc, False)
-        run.run(detach=True, cmd=('/usr/sbin/nginx', '-g', 'daemon off;'), image='nginx.img')  # TODO
+        run.run(detach=True, cmd=('/usr/sbin/nginx', '-g', 'daemon off;'), image='nginx')  # TODO
         send(soc, "detach mode", newline=True)
     elif cmd == "term":
         set_interaction(soc, False)

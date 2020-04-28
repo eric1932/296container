@@ -13,9 +13,9 @@ from config import create_record
 processes = {}  # define {uuid: (Popen, mount_path)}
 
 
-def run(detach: bool, image: str = 'ubuntu.img', uuid: str = None, load: bool = False, cmd=('/bin/uname', '-a')) -> None:
+def run(detach: bool, image: str = 'ubuntu', uuid: str = None, load: bool = False, cmd=('/bin/uname', '-a')) -> None:
     cgroup_name = 'test'
-    base_image_path = os.path.join('./base_images/', image)  # TODO exist?
+    base_image_path = os.path.join('./base_images/', image + '.img')  # TODO exist?
     if not uuid:
         uuid = uuid1()
     container_name = str(uuid) + '.img'
@@ -35,7 +35,7 @@ def run(detach: bool, image: str = 'ubuntu.img', uuid: str = None, load: bool = 
     print("uuid:", uuid)  # TODO remove
 
     # create record
-    create_record(uuid, "ubuntu", cmd)  # TODO replace ubuntu
+    create_record(uuid, image, cmd)
 
     # env
     my_env = os.environ.copy()
