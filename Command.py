@@ -17,8 +17,9 @@ class Command(abc.ABC):
     def handle(self):
         pass
 
-    def help_page(self):
-        set_interaction(self.soc, False)
+    def help_page(self, have_set_interaction):
+        if not have_set_interaction:
+            set_interaction(self.soc, False)
         path = os.path.join(".", "docs", self.cmd + ".txt")
         if os.path.exists(path):
             with open(path) as f:

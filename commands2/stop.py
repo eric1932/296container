@@ -17,6 +17,6 @@ class Stop(Command):
         print("DEBUG/args:", args)
         set_interaction(self.soc, False)
         if len(args) == 0 or ('--help', '') in optlist or ('-h', '') in optlist:
-            self.help_page()
+            self.help_page(True)
         else:
             send(self.soc, run.terminate(args[0]), newline=True)

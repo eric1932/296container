@@ -15,7 +15,7 @@ class Help(Command):
         # with open("docs/help.txt") as f:
         #     send(self.soc, f.read(), newline=True)
         send(self.soc, "commands: ", newline=False)
-        for cmd in os.listdir("commands2"):
+        for cmd in sorted(os.listdir("commands2")):
             if not cmd.endswith(".py") or cmd == "help.py":
                 continue
             send(self.soc, cmd[:-3] + " ", newline=False)

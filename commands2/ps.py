@@ -18,7 +18,7 @@ class Ps(Command):
         set_interaction(self.soc, False)
         optlist, args = getopt.getopt(self.args, 'ah', ['help', 'all'])
         if ('-h', '') in optlist or ('--help', '') in optlist:
-            self.help_page()
+            self.help_page(True)
         else:
             flag_show_all = True if ('-a', '') in optlist or ('--all', '') in optlist else False
             running = get_running_containers()

@@ -3,8 +3,8 @@ import signal
 import socket
 import threading
 
-import run
 from commands2.help import Help
+from commands2.images import Images
 from commands2.ps import Ps
 from commands2.rm import Rm
 from commands2.run import Run
@@ -53,7 +53,7 @@ def command_handler(soc: socket.socket, msg: str):
     elif cmd == "stop":
         Stop(soc, args)
     elif cmd == "images":
-        pass  # TODO
+        Images(soc, args)
     else:
         # pass
         set_interaction(soc, False)

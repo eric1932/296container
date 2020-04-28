@@ -19,8 +19,7 @@ class Run(Command):
         print("DEBUG/args:", args)
         if len(args) == 0 or ('--help', '') in optlist or ('-h', '') in optlist:
             set_interaction(self.soc, False)
-            with open("docs/run.txt") as f:
-                send(self.soc, f.read(), newline=True)
+            self.help_page(True)
         elif len(args) >= 1:
             if not os.path.exists(os.path.join("base_images", args[0] + ".img")):
                 # option 1: don't run
