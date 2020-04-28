@@ -1,13 +1,13 @@
 import os
 import shutil
 import subprocess
-import sys
 from uuid import uuid1
 
 from cgroups import Cgroup
 from sh import mount, umount
 
 from config import create_record
+from utils import find_uuid
 
 # TODO tmp
 processes = {}  # define {uuid: (Popen, mount_path)}
@@ -80,7 +80,7 @@ def run(detach: bool, image: str = 'ubuntu', uuid: str = None, load: bool = Fals
 
     if detach:
         # TODO add to pool
-        processes[str(uuid)] = (proc, mount_path)
+        processes[str(uuid)] = proc
     else:
         proc.wait()
         # cleanup
@@ -88,14 +88,21 @@ def run(detach: bool, image: str = 'ubuntu', uuid: str = None, load: bool = Fals
         os.rmdir(mount_path)
 
 
-def terminate(uuid: str):
-    if uuid not in processes:
-        print("unexpected behavior", file=sys.stderr)
-        # TODO
+def terminate(uuid: str) -> str:
+    result = find_uuid(uuid)
+    if not result:
+        return "no such container: " + uuid
+    # elif result not in processes:
+        # print("unexpected behavior", file=sys.stderr)
+        # return "already exited"
     else:
-        proc, mount_path = processes[uuid]
-        proc.terminate()
-        proc.wait()
+        uuid = result
+        proc = processes.get(uuid, None)
+        mount_path = os.path.join('container/', str(uuid))
+        if proc:
+            proc.terminate()
+            proc.wait()
         # cleanup
         umount(mount_path)
         os.rmdir(mount_path)
+        return "should be stopped"

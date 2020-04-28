@@ -8,6 +8,7 @@ from commands2.help import Help
 from commands2.ps import Ps
 from commands2.rm import Rm
 from commands2.run import Run
+from commands2.stop import Stop
 from utils import send
 from utils import set_interaction
 
@@ -44,20 +45,18 @@ def command_handler(soc: socket.socket, msg: str):
         Ps(soc, args)
     elif cmd == "run":
         Run(soc, args)
-    elif cmd == "start":
-        pass
     elif cmd == "rm":
         Rm(soc, args)
+    elif cmd == "stop":
+        Stop(soc, args)
+    elif cmd == "start":
+        pass
     elif cmd == "rmi":
         pass
     elif cmd == "bgrun":
         set_interaction(soc, False)
         run.run(detach=True, cmd=('/usr/sbin/nginx', '-g', 'daemon off;'), image='nginx')  # TODO
         send(soc, "detach mode", newline=True)
-    elif cmd == "term":
-        set_interaction(soc, False)
-        run.terminate(args[0])
-        send(soc, "should be terminated", newline=True)
     else:
         # pass
         set_interaction(soc, False)

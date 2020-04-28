@@ -14,6 +14,8 @@ class Run(Command):
 
     def handle(self):
         optlist, args = getopt.getopt(self.args, 'h', ['help'])
+        print("DEBUG/optlist:", optlist)
+        print("DEBUG/args:", args)
         if len(optlist) == 0 and len(args) == 0 or ('--help', '') in optlist or ('-h', '') in optlist:
             set_interaction(self.soc, False)
             with open("docs/run.txt") as f:

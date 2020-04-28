@@ -3,7 +3,7 @@ import socket
 
 
 def find_uuid(short):
-    uuids = [x[:-4] for x in os.listdir("./container")]
+    uuids = [x[:-4] for x in os.listdir("./container") if x.endswith(".img")]
     found = False
     target = None
     for x in uuids:

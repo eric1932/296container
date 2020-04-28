@@ -1,0 +1,4 @@
+
+Usage: stop CONTAINER
+
+Stop a running container (must be detached)
