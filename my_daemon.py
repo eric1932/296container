@@ -41,6 +41,9 @@ def command_handler(soc: socket.socket, msg: str):
     if cmd == "help" or msg == '\0' or cmd == "-h" or cmd == "--help":
         # commands.main_help(soc)  # TODO more intelligent
         Help(soc)
+    elif cmd == "stop-server":
+        set_interaction(soc, False)
+        os.kill(os.getpid(), signal.SIGINT)
     elif cmd == "ps":
         Ps(soc, args)
     elif cmd == "run":

@@ -19,4 +19,4 @@ class Help(Command):
             if not cmd.endswith(".py") or cmd == "help.py":
                 continue
             send(self.soc, cmd[:-3] + " ", newline=False)
-        send(self.soc, "", newline=True)
+        send(self.soc, "stop-server", newline=True)  # built-in & trailing newline
