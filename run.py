@@ -7,6 +7,7 @@ from cgroups import Cgroup
 from sh import mount, umount
 
 from config import create_record
+import shlex
 from utils import find_uuid
 
 # TODO tmp
@@ -18,6 +19,8 @@ def run(detach: bool, image: str = 'ubuntu', uuid: str = None, load: bool = Fals
     base_image_path = os.path.join('./base_images/', image + '.img')  # TODO exist?
     if not uuid:
         uuid = uuid1()
+    if type(cmd) is str:
+        cmd = tuple(shlex.split(cmd))
     container_name = str(uuid) + '.img'
     img_path = os.path.join('container', container_name)
     mount_path = './container/' + str(uuid)
@@ -98,7 +101,7 @@ def terminate(uuid: str) -> str:
     else:
         uuid = result
         proc = processes.get(uuid, None)
-        mount_path = os.path.join('container/', str(uuid))
+        mount_path = os.path.join('container', str(uuid))
         if proc:
             proc.terminate()
             proc.wait()

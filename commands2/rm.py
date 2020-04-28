@@ -17,7 +17,7 @@ class Rm(Command):
     def handle(self):
         optlist, args = getopt.getopt(self.args, 'h', ['help'])
         set_interaction(self.soc, False)
-        if len(optlist) == 0 and len(args) == 0 or ('--help', '') in optlist or ('-h', '') in optlist:
+        if len(args) == 0 or ('--help', '') in optlist or ('-h', '') in optlist:
             self.help_page()
         else:
             uuid_to_remove = find_uuid(args[0])

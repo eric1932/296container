@@ -2,6 +2,9 @@
 "run" requires at least 1 argument.
 See "run --help"
 
-Usage: run IMAGE [COMMAND]
+Usage: run [OPTIONS] IMAGE [COMMAND]
 
 Run a command in a new container.
+
+Options:
+    -d: run a container in background

@@ -56,15 +56,31 @@ if __name__ == '__main__':
     client_socket.send(command.encode('utf-8'))
     # receive output & enter interactive mode
     interaction = int(client_socket.recv(1).decode())
-    if not interaction:
+    if interaction:
+        # receive args
+        args = recv_args(client_socket)
+        client_socket.close()
+        run.run(detach=bool(args.get("detach", False)),
+                image=args.get("image", "ubuntu"),
+                uuid=args.get("uuid", None),
+                load=bool(args.get("load", False)),
+                cmd=args.get("cmd", ('/bin/uname', '-a')))
+
+        # DEBUG
+        # detach=bool(args.get("detach", False))
+        # image=args.get("image", "ubuntu")
+        # uuid=args.get("uuid", None)
+        # load=bool(args.get("load", False))
+        # cmd=args.get("cmd", ('/bin/uname', '-a'))
+        # print(detach)
+        # print(image)
+        # print(uuid)
+        # print(load)
+        # print(cmd)
+    else:
         while True:
             buf = client_socket.recv(1024).decode()
             if not buf:
                 break
             print(buf, end='')
         client_socket.close()
-    else:
-        # receive args
-        args = recv_args(client_socket)
-        client_socket.close()
-        run.run(uuid=args.get("uuid", None), load=args.get("load", False), detach=False, cmd='/bin/bash')

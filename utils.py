@@ -67,3 +67,12 @@ def get_running_containers():
 
 def get_all_containers():
     return [uuid_img[:-4] for uuid_img in os.listdir("./container") if uuid_img[-4:] == ".img"]
+
+def get_entry_point(image: str):
+    assert os.path.exists(os.path.join("base_images", image + ".img"))
+    txt_path = os.path.join("base_images", image + ".txt")
+    assert os.path.exists(txt_path)
+    with open(txt_path) as f:
+        str = f.read()
+    assert str[-1] != '\n'
+    return str

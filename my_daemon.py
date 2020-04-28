@@ -52,14 +52,8 @@ def command_handler(soc: socket.socket, msg: str):
         Rm(soc, args)
     elif cmd == "stop":
         Stop(soc, args)
-    elif cmd == "start":
-        pass
-    elif cmd == "rmi":
-        pass
-    elif cmd == "bgrun":
-        set_interaction(soc, False)
-        run.run(detach=True, cmd=('/usr/sbin/nginx', '-g', 'daemon off;'), image='nginx')  # TODO
-        send(soc, "detach mode", newline=True)
+    elif cmd == "images":
+        pass  # TODO
     else:
         # pass
         set_interaction(soc, False)
