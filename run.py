@@ -14,7 +14,7 @@ from utils import find_uuid
 processes = {}  # define {uuid: (Popen, mount_path)}
 
 
-def run(detach: bool, image: str = 'ubuntu', uuid: str = None, load: bool = False, cmd=('/bin/uname', '-a')) -> None:
+def run(detach: bool, image: str = 'ubuntu', uuid: str = None, load: bool = False, cmd=('/bin/uname', '-a')):
     cgroup_name = 'test'
     base_image_path = os.path.join('./base_images/', image + '.img')  # TODO exist?
     if not uuid:
@@ -84,6 +84,7 @@ def run(detach: bool, image: str = 'ubuntu', uuid: str = None, load: bool = Fals
     if detach:
         # TODO add to pool
         processes[str(uuid)] = proc
+        return str(uuid)  # TODO
     else:
         proc.wait()
         # cleanup

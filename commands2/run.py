@@ -7,6 +7,7 @@ from utils import get_entry_point
 from utils import send
 from utils import send_arg
 from utils import set_interaction
+from run import run
 
 
 class Run(Command):
@@ -27,16 +28,25 @@ class Run(Command):
                 # return
                 # option 2: set default
                 args[0] = "ubuntu"
-            set_interaction(self.soc, True)
-            send_arg(self.soc, "detach", ("1" if ('-d', '') in optlist else "0"))
-            send_arg(self.soc, "image", args[0])
-            # uuid should be none
-            # load should be false
-            send_arg(self.soc, "cmd",
-                     '/bin/uname -a' if len(args) >= 2 and args[1] == "release" else
-                     (" ".join(args[1:]) if len(args) >= 2
-                      else get_entry_point(args[0])))
-            send(self.soc, "next")  # end of passing args
+            if ('-d', '') in optlist:
+                set_interaction(self.soc, False)
+                uuid = run(True, image=args[0],
+                           cmd='/bin/uname -a' if len(args) >= 2 and args[1] == "release"
+                           else (" ".join(args[1:]) if len(args) >= 2
+                                 else get_entry_point(args[0])))
+                send(self.soc, uuid + " started", newline=True)
+            else:
+                set_interaction(self.soc, True)
+                # send_arg(self.soc, "detach", ("1" if ('-d', '') in optlist else "0"))
+                send_arg(self.soc, "detach", "0")
+                send_arg(self.soc, "image", args[0])
+                # uuid should be none
+                # load should be false
+                send_arg(self.soc, "cmd",
+                         '/bin/uname -a' if len(args) >= 2 and args[1] == "release"
+                         else (" ".join(args[1:]) if len(args) >= 2
+                               else get_entry_point(args[0])))
+                send(self.soc, "next")  # end of passing args
         # elif len(args) == 2:
         #     uuid = find_uuid(args[0])
         #     if uuid:
