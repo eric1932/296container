@@ -1,6 +1,33 @@
 # 296 Container
 ### Author: Eric Liu, Longji Li
 
+## Usage
+1. Use `vagrant up` to set up the environment.
+
+Then, run
+```shell
+vagrant ssh
+sudo -i
+cd /296container
+python3 ./server.py
+```
+To start the server.
+
+In another terminal, do the first 3 lines as well.
+```shell
+python3 ./client.py
+```
+
+### Examples
+- Ubuntu bash
+  ```shell
+  python3 ./client.py run ubuntu /bin/bash
+  ```
+- Nginx server
+  ```shell
+  python3 ./client.py run nginx /usr/sbin/nginx -g "\"daemon off;\""
+  ```
+
 ## Overview
 We plan to implement a Linux container (LXC). The container allows one to make his or her app work across various platforms with high stability and get the app deployed without massive headaches, rewriting, and break-fixing. It has the necessary libraries, dependencies, and files so that one can move it through production without all of the nasty side effects. A container is essentially not a virtual machine. The former is at the level of the operating system, while the latter runs on host systems. Compared with traditional package managers, containers are more portable and can run on different operating systems (https://www.docker.com/resources/what-container).
 
