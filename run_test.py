@@ -17,7 +17,7 @@ class TestRun(unittest.TestCase):
 
     def test_nginx(self):
         test_id = '00000000-0000-0000-0000-000000000001'
-        soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # TODO nginx does not listen on IPv6
+        soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # TODO nginx does not listen to IPv6
         run.run(True, cmd=('/usr/sbin/nginx', '-g', 'daemon off;'), image='nginx', uuid=test_id)
         sleep(1)
         result = soc.connect_ex(('localhost', 80))
